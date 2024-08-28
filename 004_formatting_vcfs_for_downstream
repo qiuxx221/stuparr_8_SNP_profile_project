@@ -1,0 +1,18 @@
+module load bcftools 
+bcftools query -f '%CHROM\t%POS\t%REF\t%ALT[\t%TGT]\n' Clean_filtered_mapq30_compare1_bams-snps.vcf.recode.vcf > compare1_part1.txt; grep "#CHROM" Clean_filtered_mapq30_compare1_bams-snps.vcf.recode.vcf | cut -f 1,2,4,5,10- > compare1_header.txt; sed -i 's|-|_|g' compare1_header.txt;  cat compare1_header.txt compare1_part1.txt | grep -v "*" |  grep -v "," > fmt_compare1_GP_info.txt
+
+bcftools query -f '%CHROM\t%POS\t%REF\t%ALT[\t%TGT]\n' Clean_filtered_mapq30_compare2_bams-snps.vcf.recode.vcf > compare2_part1.txt; grep "#CHROM" Clean_filtered_mapq30_compare2_bams-snps.vcf.recode.vcf | cut -f 1,2,4,5,10- > compare2_header.txt; sed -i 's|-|_|g' compare2_header.txt;  cat compare2_header.txt compare2_part1.txt | grep -v "*" |  grep -v "," > fmt_compare2_GP_info.txt
+
+bcftools query -f '%CHROM\t%POS\t%REF\t%ALT[\t%TGT]\n' Clean_filtered_mapq30_compare3_bams-snps.vcf.recode.vcf > compare3_part1.txt; grep "#CHROM" Clean_filtered_mapq30_compare3_bams-snps.vcf.recode.vcf | cut -f 1,2,4,5,10- > compare3_header.txt; sed -i 's|-|_|g' compare3_header.txt;  cat compare3_header.txt compare3_part1.txt | grep -v "*" |  grep -v "," > fmt_compare3_GP_info.txt
+
+bcftools query -f '%CHROM\t%POS\t%REF\t%ALT[\t%TGT]\n' Clean_filtered_mapq30_compare4_bams-snps.vcf.recode.vcf > compare4_part1.txt; grep "#CHROM" Clean_filtered_mapq30_compare4_bams-snps.vcf.recode.vcf | cut -f 1,2,4,5,10- > compare4_header.txt; sed -i 's|-|_|g' compare4_header.txt;  cat compare4_header.txt compare4_part1.txt | grep -v "*" |  grep -v "," > fmt_compare4_GP_info.txt
+
+bcftools query -f '%CHROM\t%POS\t%REF\t%ALT[\t%TGT]\n' Clean_filtered_mapq30_compare5_bams-snps.vcf.recode.vcf > compare5_part1.txt; grep "#CHROM" Clean_filtered_mapq30_compare5_bams-snps.vcf.recode.vcf | cut -f 1,2,4,5,10- > compare5_header.txt; sed -i 's|-|_|g' compare5_header.txt;  cat compare5_header.txt compare5_part1.txt | grep -v "*" |  grep -v "," > fmt_compare5_GP_info.txt
+
+bcftools query -f '%CHROM\t%POS\t%REF\t%ALT[\t%TGT]\n' Clean_filtered_mapq30_compare6_bams-snps.vcf.recode.vcf > compare6_part1.txt; grep "#CHROM" Clean_filtered_mapq30_compare6_bams-snps.vcf.recode.vcf | cut -f 1,2,4,5,10- > compare6_header.txt; sed -i 's|-|_|g' compare6_header.txt;  cat compare6_header.txt compare6_part1.txt | grep -v "*" |  grep -v "," > fmt_compare6_GP_info.txt
+
+bcftools query -f '%CHROM\t%POS\t%REF\t%ALT[\t%TGT]\n' Clean_filtered_mapq30_compare7_bams-snps.vcf.recode.vcf > compare7_part1.txt; grep "#CHROM" Clean_filtered_mapq30_compare7_bams-snps.vcf.recode.vcf | cut -f 1,2,4,5,10- > compare7_header.txt; sed -i 's|-|_|g' compare7_header.txt;  cat compare7_header.txt compare7_part1.txt | grep -v "*" |  grep -v "," > fmt_compare7_GP_info.txt
+
+bcftools query -f '%CHROM\t%POS\t%REF\t%ALT[\t%TGT]\n' Clean_filtered_mapq30_compare8_bams-snps.vcf.recode.vcf > compare8_part1.txt; grep "#CHROM" Clean_filtered_mapq30_compare8_bams-snps.vcf.recode.vcf | cut -f 1,2,4,5,10- > compare8_header.txt; sed -i 's|-|_|g' compare8_header.txt;  cat compare8_header.txt compare8_part1.txt | grep -v "*" |  grep -v "," > fmt_compare8_GP_info.txt
+
+rename fmt_compare 'mapq30_fmt_compare' *.txt
