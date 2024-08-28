@@ -1,0 +1,13 @@
+# under the bencharmking dir, we are splitting the gatk vcf into snps and indels, then will apply standard gatk filtering to each indivudual SNP files
+conda activate apg_migrate
+ls *.vcf | cut -f 1 -d '.' > /scratch.global/qiuxx221/mapq30_profile/vcf_list.txt
+
+/scratch.global/qiuxx221/mapq30_profile/
+while read p; do 
+  echo "vcftools --vcf "$p".vcf --keep-only-indels --recode --recode-INFO-all --out /scratch.global/qiuxx221/mapq30_profile/"$p"-indels.vcf; vcftools --vcf "$p".vcf --remove-indels --recode --recode-INFO-all --out /scratch.global/qiuxx221/mapq30_profile/"$p"-snps.vcf" 
+done < /scratch.global/qiuxx221/mapq30_profile/vcf_list.txt > /scratch.global/qiuxx221/mapq30_profile/split_indel_cmd.txt
+
+bash  /scratch.global/qiuxx221/mapq30_profile/split_indel_cmd.txt
+
+
+
