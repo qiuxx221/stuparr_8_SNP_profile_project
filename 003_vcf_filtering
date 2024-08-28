@@ -1,0 +1,170 @@
+# compare1
+gatk VariantFiltration \
+    --reference /home/apg/qiuxx221/reference_genomes/williams82/Phytozome/PhytozomeV13/GmaxWm82ISU_01/v2.1/assembly/GmaxWm82ISU_01_724_v2.0.fa \
+    -V mapq30_compare1_bams-snps.vcf.recode.vcf \
+     -O filtered_mapq30_compare1_bams-snps.vcf.recode.vcf \
+     --filter-expression "FS > 60.0" --filter-name "highFS"\
+     --filter-expression "MQ < 40.0" --filter-name "lowMQ" \
+     --filter-expression "MQRankSum < -12.5" --filter-name "lowMQRS" \
+     --filter-expression "QD < 2.0" --filter-name "lowQD" \
+     --filter-expression "ReadPosRankSum < -8.0" --filter-name "lowRPRS" \
+     --genotype-filter-expression "GQ < 25.0" --genotype-filter-name "lowGQ" \
+     --genotype-filter-expression "DP < 10.0" --genotype-filter-name "lowDP"
+
+gatk SelectVariants \
+    --reference /home/apg/qiuxx221/reference_genomes/williams82/Phytozome/PhytozomeV13/GmaxWm82ISU_01/v2.1/assembly/GmaxWm82ISU_01_724_v2.0.fa \
+     -V filtered_mapq30_compare1_bams-snps.vcf.recode.vcf \
+     -O Clean_filtered_mapq30_compare1_bams-snps.vcf.recode.vcf \
+     --set-filtered-gt-to-nocall true \
+     --exclude-filtered true \
+     --remove-unused-alternates true
+
+# compare2
+gatk VariantFiltration \
+    --reference /home/apg/qiuxx221/reference_genomes/williams82/Phytozome/PhytozomeV13/GmaxWm82ISU_01/v2.1/assembly/GmaxWm82ISU_01_724_v2.0.fa \
+    -V mapq30_compare2_bams-snps.vcf.recode.vcf \
+     -O filtered_mapq30_compare2_bams-snps.vcf.recode.vcf \
+     --filter-expression "FS > 60.0" --filter-name "highFS"\
+     --filter-expression "MQ < 40.0" --filter-name "lowMQ" \
+     --filter-expression "MQRankSum < -12.5" --filter-name "lowMQRS" \
+     --filter-expression "QD < 2.0" --filter-name "lowQD" \
+     --filter-expression "ReadPosRankSum < -8.0" --filter-name "lowRPRS" \
+     --genotype-filter-expression "GQ < 25.0" --genotype-filter-name "lowGQ" \
+     --genotype-filter-expression "DP < 10.0" --genotype-filter-name "lowDP"
+
+gatk SelectVariants \
+    --reference /home/apg/qiuxx221/reference_genomes/williams82/Phytozome/PhytozomeV13/GmaxWm82ISU_01/v2.1/assembly/GmaxWm82ISU_01_724_v2.0.fa \
+     -V filtered_mapq30_compare2_bams-snps.vcf.recode.vcf \
+     -O Clean_filtered_mapq30_compare2_bams-snps.vcf.recode.vcf \
+     --set-filtered-gt-to-nocall true \
+     --exclude-filtered true \
+     --remove-unused-alternates true
+
+# compare3
+gatk VariantFiltration \
+    --reference /home/apg/qiuxx221/reference_genomes/williams82/Phytozome/PhytozomeV13/GmaxWm82ISU_01/v2.1/assembly/GmaxWm82ISU_01_724_v2.0.fa \
+    -V mapq30_compare3_bams-snps.vcf.recode.vcf \
+     -O filtered_mapq30_compare3_bams-snps.vcf.recode.vcf \
+     --filter-expression "FS > 60.0" --filter-name "highFS"\
+     --filter-expression "MQ < 40.0" --filter-name "lowMQ" \
+     --filter-expression "MQRankSum < -12.5" --filter-name "lowMQRS" \
+     --filter-expression "QD < 2.0" --filter-name "lowQD" \
+     --filter-expression "ReadPosRankSum < -8.0" --filter-name "lowRPRS" \
+     --genotype-filter-expression "GQ < 25.0" --genotype-filter-name "lowGQ" \
+     --genotype-filter-expression "DP < 10.0" --genotype-filter-name "lowDP"
+
+gatk SelectVariants \
+    --reference /home/apg/qiuxx221/reference_genomes/williams82/Phytozome/PhytozomeV13/GmaxWm82ISU_01/v2.1/assembly/GmaxWm82ISU_01_724_v2.0.fa \
+     -V filtered_mapq30_compare3_bams-snps.vcf.recode.vcf \
+     -O Clean_filtered_mapq30_compare3_bams-snps.vcf.recode.vcf \
+     --set-filtered-gt-to-nocall true \
+     --exclude-filtered true \
+     --remove-unused-alternates true
+
+# compare4
+gatk VariantFiltration \
+    --reference /home/apg/qiuxx221/reference_genomes/williams82/Phytozome/PhytozomeV13/GmaxWm82ISU_01/v2.1/assembly/GmaxWm82ISU_01_724_v2.0.fa \
+    -V mapq30_compare4_bams-snps.vcf.recode.vcf \
+     -O filtered_mapq30_compare4_bams-snps.vcf.recode.vcf \
+     --filter-expression "FS > 60.0" --filter-name "highFS"\
+     --filter-expression "MQ < 40.0" --filter-name "lowMQ" \
+     --filter-expression "MQRankSum < -12.5" --filter-name "lowMQRS" \
+     --filter-expression "QD < 2.0" --filter-name "lowQD" \
+     --filter-expression "ReadPosRankSum < -8.0" --filter-name "lowRPRS" \
+     --genotype-filter-expression "GQ < 25.0" --genotype-filter-name "lowGQ" \
+     --genotype-filter-expression "DP < 10.0" --genotype-filter-name "lowDP"
+
+gatk SelectVariants \
+    --reference /home/apg/qiuxx221/reference_genomes/williams82/Phytozome/PhytozomeV13/GmaxWm82ISU_01/v2.1/assembly/GmaxWm82ISU_01_724_v2.0.fa \
+     -V filtered_mapq30_compare4_bams-snps.vcf.recode.vcf \
+     -O Clean_filtered_mapq30_compare4_bams-snps.vcf.recode.vcf \
+     --set-filtered-gt-to-nocall true \
+     --exclude-filtered true \
+     --remove-unused-alternates true
+
+
+# compare5
+gatk VariantFiltration \
+    --reference /home/apg/qiuxx221/reference_genomes/williams82/Phytozome/PhytozomeV13/GmaxWm82ISU_01/v2.1/assembly/GmaxWm82ISU_01_724_v2.0.fa \
+    -V mapq30_compare5_bams-snps.vcf.recode.vcf \
+     -O filtered_mapq30_compare5_bams-snps.vcf.recode.vcf \
+     --filter-expression "FS > 60.0" --filter-name "highFS"\
+     --filter-expression "MQ < 40.0" --filter-name "lowMQ" \
+     --filter-expression "MQRankSum < -12.5" --filter-name "lowMQRS" \
+     --filter-expression "QD < 2.0" --filter-name "lowQD" \
+     --filter-expression "ReadPosRankSum < -8.0" --filter-name "lowRPRS" \
+     --genotype-filter-expression "GQ < 25.0" --genotype-filter-name "lowGQ" \
+     --genotype-filter-expression "DP < 10.0" --genotype-filter-name "lowDP"
+
+gatk SelectVariants \
+    --reference /home/apg/qiuxx221/reference_genomes/williams82/Phytozome/PhytozomeV13/GmaxWm82ISU_01/v2.1/assembly/GmaxWm82ISU_01_724_v2.0.fa \
+     -V filtered_mapq30_compare5_bams-snps.vcf.recode.vcf \
+     -O Clean_filtered_mapq30_compare5_bams-snps.vcf.recode.vcf \
+     --set-filtered-gt-to-nocall true \
+     --exclude-filtered true \
+     --remove-unused-alternates true
+
+# compare6
+gatk VariantFiltration \
+    --reference /home/apg/qiuxx221/reference_genomes/williams82/Phytozome/PhytozomeV13/GmaxWm82ISU_01/v2.1/assembly/GmaxWm82ISU_01_724_v2.0.fa \
+    -V mapq30_compare6_bams-snps.vcf.recode.vcf \
+     -O filtered_mapq30_compare6_bams-snps.vcf.recode.vcf \
+     --filter-expression "FS > 60.0" --filter-name "highFS"\
+     --filter-expression "MQ < 40.0" --filter-name "lowMQ" \
+     --filter-expression "MQRankSum < -12.5" --filter-name "lowMQRS" \
+     --filter-expression "QD < 2.0" --filter-name "lowQD" \
+     --filter-expression "ReadPosRankSum < -8.0" --filter-name "lowRPRS" \
+     --genotype-filter-expression "GQ < 25.0" --genotype-filter-name "lowGQ" \
+     --genotype-filter-expression "DP < 10.0" --genotype-filter-name "lowDP"
+
+gatk SelectVariants \
+    --reference /home/apg/qiuxx221/reference_genomes/williams82/Phytozome/PhytozomeV13/GmaxWm82ISU_01/v2.1/assembly/GmaxWm82ISU_01_724_v2.0.fa \
+     -V filtered_mapq30_compare6_bams-snps.vcf.recode.vcf \
+     -O Clean_filtered_mapq30_compare6_bams-snps.vcf.recode.vcf \
+     --set-filtered-gt-to-nocall true \
+     --exclude-filtered true \
+     --remove-unused-alternates true
+
+# compare7
+gatk VariantFiltration \
+    --reference /home/apg/qiuxx221/reference_genomes/williams82/Phytozome/PhytozomeV13/GmaxWm82ISU_01/v2.1/assembly/GmaxWm82ISU_01_724_v2.0.fa \
+    -V mapq30_compare7_bams-snps.vcf.recode.vcf \
+     -O filtered_mapq30_compare7_bams-snps.vcf.recode.vcf \
+     --filter-expression "FS > 60.0" --filter-name "highFS"\
+     --filter-expression "MQ < 40.0" --filter-name "lowMQ" \
+     --filter-expression "MQRankSum < -12.5" --filter-name "lowMQRS" \
+     --filter-expression "QD < 2.0" --filter-name "lowQD" \
+     --filter-expression "ReadPosRankSum < -8.0" --filter-name "lowRPRS" \
+     --genotype-filter-expression "GQ < 25.0" --genotype-filter-name "lowGQ" \
+     --genotype-filter-expression "DP < 10.0" --genotype-filter-name "lowDP"
+
+gatk SelectVariants \
+    --reference /home/apg/qiuxx221/reference_genomes/williams82/Phytozome/PhytozomeV13/GmaxWm82ISU_01/v2.1/assembly/GmaxWm82ISU_01_724_v2.0.fa \
+     -V filtered_mapq30_compare7_bams-snps.vcf.recode.vcf \
+     -O Clean_filtered_mapq30_compare7_bams-snps.vcf.recode.vcf \
+     --set-filtered-gt-to-nocall true \
+     --exclude-filtered true \
+     --remove-unused-alternates true
+
+# compare8
+gatk VariantFiltration \
+    --reference /home/apg/qiuxx221/reference_genomes/williams82/Phytozome/PhytozomeV13/GmaxWm82ISU_01/v2.1/assembly/GmaxWm82ISU_01_724_v2.0.fa \
+    -V mapq30_compare8_bams-snps.vcf.recode.vcf \
+     -O filtered_mapq30_compare8_bams-snps.vcf.recode.vcf \
+     --filter-expression "FS > 60.0" --filter-name "highFS"\
+     --filter-expression "MQ < 40.0" --filter-name "lowMQ" \
+     --filter-expression "MQRankSum < -12.5" --filter-name "lowMQRS" \
+     --filter-expression "QD < 2.0" --filter-name "lowQD" \
+     --filter-expression "ReadPosRankSum < -8.0" --filter-name "lowRPRS" \
+     --genotype-filter-expression "GQ < 25.0" --genotype-filter-name "lowGQ" \
+     --genotype-filter-expression "DP < 10.0" --genotype-filter-name "lowDP"
+
+gatk SelectVariants \
+    --reference /home/apg/qiuxx221/reference_genomes/williams82/Phytozome/PhytozomeV13/GmaxWm82ISU_01/v2.1/assembly/GmaxWm82ISU_01_724_v2.0.fa \
+     -V filtered_mapq30_compare8_bams-snps.vcf.recode.vcf \
+     -O Clean_filtered_mapq30_compare8_bams-snps.vcf.recode.vcf \
+     --set-filtered-gt-to-nocall true \
+     --exclude-filtered true \
+     --remove-unused-alternates true
+
+
