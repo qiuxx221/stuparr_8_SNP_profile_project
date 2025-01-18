@@ -1,0 +1,38 @@
+########adapter trimming 
+
+#!/bin/bash -l
+#SBATCH --partition=agsmall,aglarge
+#SBATCH --time=12:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=8
+#SBATCH --ntasks-per-core=1
+#SBATCH --mem=120G
+#SBATCH --mail-user=qiuxx221@umn.edu
+#SBATCH --job-name=cutadapt
+#SBATCH --error=cutadapt.err
+#SBATCH --output=cutadapt.out
+
+module load parallel/20190122
+
+#wkdir = /scratch.global/qiuxx221/project57/reads
+
+cd /scratch.global/qiuxx221/sra_sub
+ls *.fastq.gz | sort | cut -d "_" -f 1-2 | uniq > reads_id.txt
+
+while read p; do
+echo "/projects/standard/apg/qiuxx221/.conda/envs/apg_toolkits/bin/trimmomatic PE -phred33 -threads 6 /scratch.global/qiuxx221/sra_sub/"$p"_R1_001.fastq.gz /scratch.global/qiuxx221/sra_sub/"$p"_R2_001.fastq.gz "$p"_1.trim.fastq "$p"_1.single.fastq "$p"_2.trim.fastq "$p"_2.single.fastq ILLUMINACLIP:/projects/standard/apg/qiuxx221/.conda/envs/apg_toolkits/share/trimmomatic-0.39-2/adapters/all_adaptors.fa:2:30:10:2:true; gzip "$p"_1.trim.fastq ; gzip "$p"_2.trim.fastq" 
+done < reads_id.txt > adaptor_trimming_cmd
+
+parallel --tmpdir /scratch.global/qiuxx221/ --jobs 8 < adaptor_trimming_cmd
+rm *single.fastq
+
+########
+# building bwa mapping index for transgenes
+module load bwa
+bwa index transgene_search_db.fasta 
+
+
+######## 
+# bwa mapping
+
