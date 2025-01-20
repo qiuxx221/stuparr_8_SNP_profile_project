@@ -35,4 +35,73 @@ bwa index transgene_search_db.fasta
 
 ######## 
 # bwa mapping
+#!/bin/bash -l 
+#SBATCH --time=10:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=20
+#SBATCH --ntasks-per-core=1
+#SBATCH --mem=40G
+#SBATCH --mail-user=qiuxx221@umn.edu
+#SBATCH --job-name=index_williams82
+#SBATCH --error=index_williams82.err
+#SBATCH --output=index_williams82.out
+
+module load parallel/20190122
+module load bwa/0.7.17
+module load samtools/1.7
+module load bedtools/2.27.1
+module load java/jdk1.8.0_144
+module load macs/2.1.1
+
+
+cd /scratch.global/qiuxx221/sra_sub/trimmed
+
+ls *.gz | cut -f 1-2 -d "_" | sort | uniq > read_list.txt
+
+# map reads bwa
+while read p; 
+do  echo "bwa mem /scratch.global/qiuxx221/sra_sub/pTRANS230d-minus.fasta "$p"_1.trim.fastq.gz "$p"_2.trim.fastq.gz > ptrans/"$p"_aln-se.sam; cd /scratch.global/qiuxx221/sra_sub/trimmed/ptrans; samtools view -bS "$p"_aln-se.sam > "$p".bam ; rm "$p"_aln-se.sam ; samtools sort -o "$p".pTRANS_sorted.bam "$p".bam ; samtools index "$p".pTRANS_sorted.bam";
+done < /scratch.global/qiuxx221/sra_sub/trimmed/read_list.txt > bwa_mapping_ptrans_samples.txt
+python2 generate_slurm_samfilter_project57.py 8 bwa_mapping_ptrans_samples.txt
+for i in *.sub;do  sbatch "$i"; done
+
+
+
+
+# map reads bwa
+while read p; 
+do  echo "bwa mem /scratch.global/qiuxx221/sra_sub/T_dna_ins.fasta "$p"_1.trim.fastq.gz "$p"_2.trim.fastq.gz > tdna/"$p"_aln-se.sam; cd /scratch.global/qiuxx221/sra_sub/trimmed/tdna; samtools view -bS "$p"_aln-se.sam > "$p".bam ; rm "$p"_aln-se.sam ; samtools sort -o "$p".tdna_sorted.bam "$p".bam ; samtools index "$p".tdna_sorted.bam";
+done < /scratch.global/qiuxx221/sra_sub/trimmed/read_list.txt > bwa_mapping_tdna_samples.txt
+python2 generate_slurm_samfilter_project57.py 8 bwa_mapping_tdna_samples.txt
+for i in *.sub;do  sbatch "$i"; done
+
+
+########
+# finding mapped reads
+
+#!/bin/bash
+#SBATCH -p ag2tb,a100-4,agsmall
+#SBATCH -N 1
+#SBATCH -n 24
+#SBATCH -t 48:00:00
+#SBATCH --mem=120gb
+#SBATCH --tmp=400gb
+#SBATCH -J bwa_mapping_samples_0
+#SBATCH -o bwa_mapping_samples_0.o%j
+#SBATCH -e bwa_mapping_samples_0.e%j
+#SBATCH --mail-user=qiuxx221@umn.edu
+#SBATCH --mail-type=ALL
+#cd /scratch.global/qiuxx221/sra_sub/trimmed
+cd /scratch.global/qiuxx221/sra_sub/trimmed
+
+module load samtools
+for i in *.sorted.bam; do
+  samtools view -b -F 4 $i > slurm_mapped_"$i"
+done
+
+
+
+
+samtools fastq mapped_AB-UMGC-Stup57-401-64-56_S1.sorted.bam -1 mapped_AB-UMGC-Stup57-401-64-56_S1_output_R1.fastq -2 mapped_AB-UMGC-Stup57-401-64-56_S1_output_R2.fastq 
 
