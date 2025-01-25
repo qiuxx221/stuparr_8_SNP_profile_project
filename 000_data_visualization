@@ -1,0 +1,389 @@
+---
+title: "snp_profile_8_comparison using mapq30_figure"
+date: "2024-08-14"
+output:
+  html_document:
+    code_folding: hide
+    smart: true
+    theme: cerulean
+    toc: true
+    toc_depth: 4
+    toc_float:
+      collapsed: false
+    number_sections: false
+    df_print: paged
+---
+This report include the data from analyzing the SNP profile between the 8 selected contrast. 
+
+MAPQ40 was used to filter the bam files before doing joint variant calling. Further, for the SNP filtering, we added in require at least 10 reads to support the SNP calls
+
+Data is stored at https://drive.google.com/drive/folders/1uE7-ERAG_ATFZ6td9pERud8FhwIrGvEv?usp=drive_link 
+working directory: /home/stuparr/shared/ris/qiuxx221/snp_profile_contrast/mapq40/snp_vcf/10dp_filter/gp_info/snp_contrast_10_dp_test.Rmd
+
+# load library
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(circlize)
+```
+
+# read in the variant calling result
+```{r}
+# comp1 
+comp1 <- fread("mapq30_fmt_compare1_GP_info.txt")
+names(comp1) <- c("Chr","Pos","Ref","ALT","GP1","GP2")
+comp1$comp <- "404-49-252_vs_M08-362045"
+comp1$flag <- "comp1"
+
+# comp2 
+comp2 <- fread("mapq30_fmt_compare2_GP_info.txt")
+names(comp2) <- c("Chr","Pos","Ref","ALT","GP1","GP2")
+comp2$comp <- "401-64-56_vs_M07-292-111"
+comp2$flag <- "comp2"
+
+# comp3 
+comp3 <- fread("mapq30_fmt_compare3_GP_info.txt")
+names(comp3)
+names(comp3) <- c("Chr","Pos","Ref","ALT","GP1","GP2")
+comp3$comp <- "401-90-114_vs_M07-292-111"
+comp3$flag <- "comp3"
+
+
+# comp4 
+comp4 <- fread("mapq30_fmt_compare4_GP_info.txt")
+names(comp4)
+names(comp4) <- c("Chr","Pos","Ref","ALT","GP1","GP2")
+comp4$comp <- "BertMN01-Parent_vs_WPT673-7-12-5"
+comp4$flag <- "comp4"
+
+# comp5 
+comp5 <- fread("mapq30_fmt_compare5_GP_info.txt")
+names(comp5)
+names(comp5) <- c("Chr","Pos","Ref","ALT","GP1","GP2")
+comp5$comp <- "BertMN01-Parent_vs_WPT673-7-8-8"
+comp5$flag <- "comp5"
+
+snp_matrix_meta <- rbind(comp1,comp2,comp3,comp4,comp5)
+```
+
+# formatting and adding homzoygous and hets call into the filtering step
+```{r}
+snp_matrix_meta$ref_homo <- paste0(snp_matrix_meta$Ref,"/",snp_matrix_meta$Ref)
+snp_matrix_meta$hets <- paste0(snp_matrix_meta$Ref,"/",snp_matrix_meta$ALT)
+snp_matrix_meta$alt_homo <- paste0(snp_matrix_meta$ALT,"/",snp_matrix_meta$ALT)
+```
+
+# filtering out variants 
+1. There are no hets call for genotype in each contrast 
+2. For each site, variants are the different between two genotypes 
+3. If one genotype has no call, remove the variant 
+4. If there is * in the variant call, remove the variant 
+5. If there is , in the variant call, remove the variant as well
+```{r}
+# 1. There are no hets call in each contrast 
+snp_matrix_meta_no_hets <- snp_matrix_meta %>% filter( GP1 != hets )  %>% filter( GP2 != hets) 
+# 2. variants are the different between two genotypes 
+snp_matrix_meta_no_hets_diff <- snp_matrix_meta_no_hets %>% filter(GP1 != GP2) 
+# 3. If one genotype has no call, remove the variant as well
+snp_matrix_meta_no_hets_diff_clean_call <- snp_matrix_meta_no_hets_diff %>% filter(GP1 !="./.")  %>% filter(GP2 !="./.")
+
+df_final2 <-snp_matrix_meta_no_hets_diff_clean_call
+
+```
+
+# stats on how many variants were left for each comparision
+```{r}
+print("comp1 404-49-252_vs_M08-362045")
+print("comp2 401-64-56_vs_M07-292-111")
+
+print("comp3 401-90-114_vs_M07-292-111")
+print("comp4 BertMN01-Parent_vs_WPT673-7-12-5")
+
+print("comp5 BertMN01-Parent_vs_WPT673-7-8-8")
+
+table(df_final2$flag)
+```
+
+# SNP profile visulization
+```{r}
+# Define window size (e.g., 1,000,000 base pairs)
+window_size <- 1000000
+
+df_final <- df_final2
+# Create a new column for window
+df <- df_final %>%
+  mutate(window = (Pos %/% window_size) * window_size)
+
+# Count SNPs per window
+snp_density <- df %>%
+  group_by(Chr, window,flag) %>%
+  summarize(snp_count = n(), .groups = 'drop')
+
+# Plot SNP density all together
+ggplot(snp_density, aes(x = window, y = snp_count, color = flag)) +
+  geom_line() +
+  labs(
+    x = "Position (base pairs)",
+    y = "SNP Count",
+    title = "SNP Density by Window"
+  ) +
+  theme_minimal() + facet_wrap(.~Chr,scales = "free") 
+```
+
+
+# splitting dataset by each comparison and write into files
+```{r}
+split_data <- split(df_final, df_final$flag)
+
+# Loop through the split data and write each subset to a separate file
+lapply(names(split_data), function(flag) {
+  # Define the filename based on the flag
+  file_name <- paste0(flag, ".csv")
+  # Write the subset to a CSV file
+  write.csv(split_data[[flag]], file_name, row.names = FALSE)
+})
+```
+
+# creating SNP window count matrix for down
+```{r}
+df_plot <- snp_density
+df_plot$end <- df_plot$window + 1000000
+names(df_plot) <- c("chr","start","flag","snp_count","end")
+
+# move the dataset into the wide format 
+wide_df <- df_plot %>%
+  pivot_wider(names_from = flag, values_from = snp_count)
+
+df_fmt <- wide_df %>% mutate_all(~ replace(., is.na(.), 0))
+df_fmt$start[df_fmt$start == 0] <- 1
+
+options(scipen = 999)
+# merging the first 3 columns to get all the chr window that has at least genome type with counts
+df_merged <- unite(df_fmt, merged_column, chr, start, end, sep = "_")
+# getting unique IDs
+ids <- as.data.frame(unique(df_merged$merged_column))
+
+# Split the 'merged_column' by underscore into new columns
+df_split <- separate(ids, `unique(df_merged$merged_column)`, into = c("chr", "start", "stop"), sep = "_")
+# rename the dataset to coords for figure visulization 
+##coords <- df_split 
+coords <- fread("soybean_genome_window_1mb.bed")
+colnames(coords) <- c("chr","start","stop")
+# Change all 0s to 1s in column A
+coords$start[coords$start == 0] <- 1
+# Convert start and end to numeric
+coords$start <- as.numeric(coords$start)
+coords$stop <- as.numeric(coords$stop)
+
+incorrect_coords <- coords[coords$stop < coords$start, ]
+
+coords$band <- "HOLD"
+coords$stain <- "Hold"
+chr_order <- as.list(unique(coords$chr))
+```
+
+# figure making
+
+```{r}
+# start initialize figure 
+pdf("circular_plot_rm_track_change_color_jan17_5_tracks.pdf", width = 6, height = 6) # Adjust the size as needed
+
+circos.par("start.degree" = 90)
+circos.initializeWithIdeogram(coords,sort.chr = TRUE)
+# to be able to make all tracks at the same scale, get the max count out of the whole matrix
+max <- max(snp_density$snp_count)
+# number is 8616
+common_ylim <- c(0, 8616)
+#snp 
+
+# fixing all the position discrepency 
+df_backbone <- coords
+df_backbone$anchor <- paste0(df_backbone$chr, "_",df_backbone$start)
+
+
+comp1 <- df_fmt %>% select(chr,start,end,comp1)
+df1 <- comp1
+df1$anchor <- paste0(df1$chr,"_",df1$start)
+merged <- left_join(df_backbone,df1)
+fix_comp1 <- merged %>% select(chr,start,stop,comp1)
+colnames(fix_comp1) <- c("chr","start","end","comp1")
+fix_comp1 <- fix_comp1 %>% mutate_all(~ replace(., is.na(.), 0))
+comp1_circos <- fix_comp1
+circos.genomicTrackPlotRegion(comp1_circos, numeric.column = c("comp1"), ylim = common_ylim,track.height = 0.1,
+                              panel.fun = function(region, value, ...) {
+                                # Plot filled peaks using circos.rect
+                                circos.rect(region$start, 0,
+                                            region$end, value[[1]],
+                                            col = "black", border = "black")
+                              })
+
+
+comp2 <- df_fmt %>% select(chr,start,end,comp2)
+df2 <- comp2
+df2$anchor <- paste0(df2$chr,"_",df2$start)
+merged <- left_join(df_backbone,df2)
+fix_comp2 <- merged %>% select(chr,start,stop,comp2)
+colnames(fix_comp2) <- c("chr","start","end","comp2")
+fix_comp2 <- fix_comp2 %>% mutate_all(~ replace(., is.na(.), 0))
+comp2_circos <- fix_comp2
+circos.genomicTrackPlotRegion(comp2_circos, numeric.column = c("comp2"), ylim = common_ylim,track.height = 0.1,
+                              panel.fun = function(region, value, ...) {
+                                # Plot filled peaks using circos.rect
+                                circos.rect(region$start, 0,
+                                            region$end, value[[1]],
+                                            col = "red", border = "red")
+                              })
+
+
+## comp3 
+comp3 <- df_fmt %>% select(chr,start,end,comp3)
+df3 <- comp3
+df3$anchor <- paste0(df3$chr,"_",df3$start)
+merged <- left_join(df_backbone,df3)
+fix_comp3 <- merged %>% select(chr,start,stop,comp3)
+colnames(fix_comp3) <- c("chr","start","end","comp3")
+fix_comp3 <- fix_comp3 %>% mutate_all(~ replace(., is.na(.), 0))
+comp3_circos <- fix_comp3
+circos.genomicTrackPlotRegion(comp3_circos, numeric.column = c("comp3"), ylim = common_ylim,track.height = 0.1,
+                              panel.fun = function(region, value, ...) {
+                                                          # Plot filled peaks using circos.rect
+                                circos.rect(region$start, 0,
+                                            region$end, value[[1]],
+                                            col = "orange", border = "orange")
+                              })
+
+### comp 4 
+comp4 <- df_fmt %>% select(chr,start,end,comp4)
+df4 <- comp4
+df4$anchor <- paste0(df4$chr,"_",df4$start)
+merged <- left_join(df_backbone,df4)
+fix_comp4 <- merged %>% select(chr,start,stop,comp4)
+colnames(fix_comp4) <- c("chr","start","end","comp4")
+fix_comp4 <- fix_comp4 %>% mutate_all(~ replace(., is.na(.), 0))
+comp4_circos <- fix_comp4
+
+circos.genomicTrackPlotRegion(comp4_circos, numeric.column = c("comp4"), ylim = common_ylim,track.height = 0.1,
+                              panel.fun = function(region, value, ...) {
+                                # Plot filled peaks using circos.rect
+                                circos.rect(region$start, 0,
+                                            region$end, value[[1]],
+                                            col = "blue", border = "blue")
+                              })
+
+# comparison 5 
+comp5 <- df_fmt %>% select(chr,start,end,comp5) 
+df5 <- comp5
+df5$anchor <- paste0(df5$chr,"_",df5$start)
+merged <- left_join(df_backbone,df5)
+fix_comp5 <- merged %>% select(chr,start,stop,comp5)
+colnames(fix_comp5) <- c("chr","start","end","comp5")
+fix_comp5 <- fix_comp5 %>% mutate_all(~ replace(., is.na(.), 0))
+comp5_circos <- fix_comp5
+
+circos.genomicTrackPlotRegion(comp5_circos, numeric.column = c("comp5"), ylim = common_ylim,track.height = 0.1,
+                              panel.fun = function(region, value, ...) {
+                                # Plot filled peaks using circos.rect
+                                circos.rect(region$start, 0,
+                                            region$end, value[[1]],
+                                            col = "purple", border = "purple")
+                              })
+
+
+
+circos.clear()
+
+```
+
+
+# SNP breakdown figure
+
+##  comp1 SNP window breakdown figure 
+```{r,fig.height=20,fig.width=5}
+pdf("snp_distribution_comp1.pdf", width = 10, height = 15) # Adjust the size as needed
+ggplot(comp1, aes(x = start / 1e6, y = comp1)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ chr, scales = "free_x", ncol = 2) +
+  labs(x = "Position (Mb)", y = "SNP Density (Count per Mb)", title = "SNP Density per 1 Mb Window  comp1") +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add border to each facet panel
+  ) +
+  theme(legend.position = "none")
+dev.off()
+
+```
+
+
+##  comp2 SNP window breakdown figure 
+```{r,fig.height=20,fig.width=5}
+pdf("snp_distribution_comp2.pdf", width = 10, height = 15) # Adjust the size as needed
+ggplot(comp2, aes(x = start / 1e6, y = comp2)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ chr, scales = "free_x", ncol = 2) +
+  labs(x = "Position (Mb)", y = "SNP Density (Count per Mb)", title = "SNP Density per 1 Mb Window  comp2") +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add border to each facet panel
+  ) +
+  theme(legend.position = "none")
+dev.off()
+
+```
+
+
+##  comp3 SNP window breakdown figure 
+```{r,fig.height=20,fig.width=5}
+pdf("snp_distribution_comp3.pdf", width = 10, height = 15) # Adjust the size as needed
+ggplot(comp3, aes(x = start / 1e6, y = comp3)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ chr, scales = "free_x", ncol = 2) +
+  labs(x = "Position (Mb)", y = "SNP Density (Count per Mb)", title = "SNP Density per 1 Mb Window  comp3 ") +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add border to each facet panel
+  ) +
+  theme(legend.position = "none")
+dev.off()
+
+```
+
+##  comp4 SNP window breakdown figure 
+```{r,fig.height=20,fig.width=5}
+pdf("snp_distribution_comp4.pdf", width = 10, height = 15) # Adjust the size as needed
+ggplot(comp4, aes(x = start / 1e6, y = comp4)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ chr, scales = "free_x", ncol = 2) +
+  labs(x = "Position (Mb)", y = "SNP Density (Count per Mb)", title = "SNP Density per 1 Mb Window  comp4 ") +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add border to each facet panel
+  ) +
+  theme(legend.position = "none")  + scale_y_continuous(breaks = c(0, 1, 2, 3))
+
+dev.off()
+
+```
+
+##  comp5 SNP window breakdown figure 
+```{r,fig.height=20,fig.width=5}
+pdf("snp_distribution_comp5.pdf", width = 10, height = 15) # Adjust the size as needed
+ggplot(comp5, aes(x = start / 1e6, y = comp5)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ chr, scales = "free_x", ncol = 2) +
+  labs(x = "Position (Mb)", y = "SNP Density (Count per Mb)", title = "SNP Density per 1 Mb Window  comp5 ") +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add border to each facet panel
+  ) +
+  theme(legend.position = "none")  + scale_y_continuous(breaks = c(0, 1, 2, 3))
+dev.off()
+
+```
