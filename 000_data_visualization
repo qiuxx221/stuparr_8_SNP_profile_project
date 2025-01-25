@@ -15,10 +15,10 @@ output:
 ---
 This report include the data from analyzing the SNP profile between the 8 selected contrast. 
 
-MAPQ40 was used to filter the bam files before doing joint variant calling. Further, for the SNP filtering, we added in require at least 10 reads to support the SNP calls
+MAPQ30 was used to filter the bam files before doing joint variant calling. Further, for the SNP filtering, we added in require at least 10 reads to support the SNP calls
 
 Data is stored at https://drive.google.com/drive/folders/1uE7-ERAG_ATFZ6td9pERud8FhwIrGvEv?usp=drive_link 
-working directory: /home/stuparr/shared/ris/qiuxx221/snp_profile_contrast/mapq40/snp_vcf/10dp_filter/gp_info/snp_contrast_10_dp_test.Rmd
+working directory: /home/stuparr/shared/ris/qiuxx221/snp_profile_contrast/mapq30_profile/analysis
 
 # load library
 ```{r setup, include=FALSE}
